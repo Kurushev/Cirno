@@ -4,7 +4,10 @@ using System.Collections;
 public class CameraController : MonoBehaviour {
 
 	public Camera gameCamera;
-
+	float cameraYPosition = 100;
+	float cameraYPositionMax = 130;
+	float cameraYPositionMin = 70;
+	public int cameraZoomMultiplier = 1;
 
 	// Use this for initialization
 	void Start () {
@@ -19,6 +22,10 @@ public class CameraController : MonoBehaviour {
 		gameCamera.transform.Translate(moveDirection);
 		//Поскольку камера наклонена под углом 75 градусов к горизонтальной плоскости, имеет тенденцию удаляться от игрового поля.
 		//Соответственно ниже просто жестко задаю значение высоты по Y
-		gameCamera.transform.position = new Vector3 (gameCamera.transform.position.x, 100f, gameCamera.transform.position.z);
+		gameCamera.transform.position = new Vector3 (gameCamera.transform.position.x, cameraYPosition, gameCamera.transform.position.z);
+
+		//Реализация зума по вращению колеса мыши, множитель (cameraZoomMultiplier) сделан пабликом чтобы менять его свойства прямо из юнити.
+		if 		(Input.GetAxis ("Mouse ScrollWheel") < 0 && cameraYPosition >= cameraYPositionMin) {cameraYPosition -= cameraZoomMultiplier;}
+		else if	(Input.GetAxis ("Mouse ScrollWheel") > 0 && cameraYPosition <= cameraYPositionMax) {cameraYPosition += cameraZoomMultiplier;}
 	}
 }
