@@ -4,14 +4,26 @@ using System.Collections;
 public class CameraController : MonoBehaviour {
 
 	public Camera gameCamera;
+	public Terrain gameTerrain;
 	float cameraYPosition = 100;
 	float cameraYPositionMax = 130;
 	float cameraYPositionMin = 70;
+	float cameraMovementDelta = 40; //Значение отвечает за то, насколько ограничена плоскость движения камеры по краям относительно размера террейна.
+	float cameraMovementRangeXMax;
+	float cameraMovementRangeZMax;
+	float cameraMovementRangeXMin;
+	float cameraMovementRangeZMin;
 	public int cameraZoomMultiplier = 1;
 
 	// Use this for initialization
 	void Start () {
 	//Здесь можно будет задать стартовые параметры камеры.
+
+		cameraMovementRangeXMax = gameTerrain.terrainData.size.x - cameraMovementDelta;
+		cameraMovementRangeZMax = gameTerrain.terrainData.size.z - cameraMovementDelta - 10;
+		cameraMovementRangeXMin = cameraMovementDelta;
+		cameraMovementRangeZMin = -5;
+
 	}
 	
 	// Update is called once per frame
@@ -19,13 +31,34 @@ public class CameraController : MonoBehaviour {
 		//В юнити есть поняте Axis, вертикальной и горизонтальной, им можно назначать кнопки.
 		//Для меня загадка, почему я передаю значение параметру Y, а изменяется параметр Z, но может просветлюсь позже.
 		Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0.0f);
-		gameCamera.transform.Translate(moveDirection);
-		//Поскольку камера наклонена под углом 75 градусов к горизонтальной плоскости, имеет тенденцию удаляться от игрового поля.
-		//Соответственно ниже просто жестко задаю значение высоты по Y
-		gameCamera.transform.position = new Vector3 (gameCamera.transform.position.x, cameraYPosition, gameCamera.transform.position.z);
+
+
+		if ((gameCamera.transform.position.x < cameraMovementRangeXMin && moveDirection.x < 0) ||
+		    (gameCamera.transform.position.x > cameraMovementRangeXMax && moveDirection.x > 0)) {
+			moveDirection.x = 0;
+		} 
+
+		if ((gameCamera.transform.position.z < cameraMovementRangeZMin && moveDirection.y < 0) ||
+		    (gameCamera.transform.position.z > cameraMovementRangeZMax && moveDirection.y > 0)) {
+			moveDirection.y = 0;
+		} 
+		moveDirection.z = 0;
+
+		gameCamera.transform.Translate (moveDirection);
+
 
 		//Реализация зума по вращению колеса мыши, множитель (cameraZoomMultiplier) сделан пабликом чтобы менять его свойства прямо из юнити.
 		if 		(Input.GetAxis ("Mouse ScrollWheel") < 0 && cameraYPosition >= cameraYPositionMin) {cameraYPosition -= cameraZoomMultiplier;}
 		else if	(Input.GetAxis ("Mouse ScrollWheel") > 0 && cameraYPosition <= cameraYPositionMax) {cameraYPosition += cameraZoomMultiplier;}
+		gameCamera.transform.position = new Vector3 (gameCamera.transform.position.x, cameraYPosition, gameCamera.transform.position.z);
+
+		/* Здесь была попытка высчитать дельту, на которую надо ограничивать смещение камеры, но значения оказались слишком далеки от реальных.
+		 * Соответственно идея была простая, посчитать гипотенузу через угол и катет, затем посчитать собственно катет, который искомая дельта
+		float hypo = cameraYPosition / Mathf.Sin(Mathf.Deg2Rad * gameCamera.fieldOfView);
+		float delta = Mathf.Sqrt (hypo * hypo - cameraYPosition * cameraYPosition);
+		Debug.Log (delta);
+		*/
+
+		
 	}
 }
