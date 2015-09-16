@@ -1,0 +1,24 @@
+using UnityEngine;
+using System.Collections;
+
+public class CameraController : MonoBehaviour {
+
+	public Camera gameCamera;
+
+
+	// Use this for initialization
+	void Start () {
+	//Здесь можно будет задать стартовые параметры камеры.
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		//В юнити есть поняте Axis, вертикальной и горизонтальной, им можно назначать кнопки.
+		//Для меня загадка, почему я передаю значение параметру Y, а изменяется параметр Z, но может просветлюсь позже.
+		Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0.0f);
+		gameCamera.transform.Translate(moveDirection);
+		//Поскольку камера наклонена под углом 75 градусов к горизонтальной плоскости, имеет тенденцию удаляться от игрового поля.
+		//Соответственно ниже просто жестко задаю значение высоты по Y
+		gameCamera.transform.position = new Vector3 (gameCamera.transform.position.x, 100f, gameCamera.transform.position.z);
+	}
+}
