@@ -1,19 +1,18 @@
-using UnityEngine;
-using System.Collections;
 
 public class CameraController : MonoBehaviour {
 
 	public Camera gameCamera;
 	public Terrain gameTerrain;
-	float cameraYPosition = 100;
-	float cameraYPositionMax = 130;
-	float cameraYPositionMin = 70;
-	float cameraMovementDelta = 40; //Значение отвечает за то, насколько ограничена плоскость движения камеры по краям относительно размера террейна.
+	float cameraSize = 30;
+	float cameraSizeMax = 50;
+	float cameraSizeMin = 20;
+	float cameraMovementDelta = 30; //Значение отвечает за то, насколько ограничена плоскость движения камеры по краям относительно размера террейна.
 	float cameraMovementRangeXMax;
 	float cameraMovementRangeZMax;
 	float cameraMovementRangeXMin;
 	float cameraMovementRangeZMin;
 	public int cameraZoomMultiplier = 1;
+	Quaternion cameraQuaternion;
 
 	// Use this for initialization
 	void Start () {
@@ -23,6 +22,7 @@ public class CameraController : MonoBehaviour {
 		cameraMovementRangeZMax = gameTerrain.terrainData.size.z - cameraMovementDelta - 10;
 		cameraMovementRangeXMin = cameraMovementDelta;
 		cameraMovementRangeZMin = -5;
+		cameraQuaternion = gameCamera.transform.rotation;
 
 	}
 	
@@ -48,9 +48,9 @@ public class CameraController : MonoBehaviour {
 
 
 		//Реализация зума по вращению колеса мыши, множитель (cameraZoomMultiplier) сделан пабликом чтобы менять его свойства прямо из юнити.
-		if 		(Input.GetAxis ("Mouse ScrollWheel") < 0 && cameraYPosition >= cameraYPositionMin) {cameraYPosition -= cameraZoomMultiplier;}
-		else if	(Input.GetAxis ("Mouse ScrollWheel") > 0 && cameraYPosition <= cameraYPositionMax) {cameraYPosition += cameraZoomMultiplier;}
-		gameCamera.transform.position = new Vector3 (gameCamera.transform.position.x, cameraYPosition, gameCamera.transform.position.z);
+		if 		(Input.GetAxis ("Mouse ScrollWheel") < 0 && cameraSize >= cameraSizeMin) {cameraSize -= cameraZoomMultiplier;}
+		else if	(Input.GetAxis ("Mouse ScrollWheel") > 0 && cameraSize <= cameraSizeMax) {cameraSize += cameraZoomMultiplier;}
+		gameCamera.orthographicSize = cameraSize;
 
 		/* Здесь была попытка высчитать дельту, на которую надо ограничивать смещение камеры, но значения оказались слишком далеки от реальных.
 		 * Соответственно идея была простая, посчитать гипотенузу через угол и катет, затем посчитать собственно катет, который искомая дельта
